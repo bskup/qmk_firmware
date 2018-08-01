@@ -15,6 +15,15 @@
  */
 #include QMK_KEYBOARD_H
 
+// For defining custom keycodes to use as-is in keymap
+#define KC_CTLBS LCTL(KC_BSPC)
+
+// For creating macros to use in keymap by name, related code in process_record_user function
+enum custom_keycodes {
+    GO2SLP = SAFE_RANGE,
+    MY_OTHER_MACRO
+};
+
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     [0] = LAYOUT_all(
@@ -26,10 +35,19 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
       KC_LCTL, KC_NO, KC_LALT,                 KC_SPC,                           KC_NO, KC_RGUI, KC_NO,   MO(1),                   KC_LEFT, KC_DOWN, KC_RGHT),
 
      [1] = LAYOUT_all(
-      KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, RGB_TOG,                    KC_TRNS, KC_TRNS, KC_TRNS, \
-      KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, RESET, RESET,      KC_TRNS, KC_TRNS, KC_TRNS, \
+      KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, RGB_TOG,                    KC_TRNS, KC_TRNS, RESET, \
+      KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, RESET, KC_CTLBS,   KC_TRNS, KC_TRNS, KC_TRNS, \
       KC_TRNS, BL_TOGG, BL_INC,  BL_DEC,  BL_BRTG, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,           KC_TRNS, KC_TRNS, KC_TRNS, \
       KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, \
+      KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, MO(2), MO(2),                    KC_TRNS, \
+      KC_TRNS, KC_TRNS, KC_TRNS,          KC_TRNS,                   KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,                                      KC_TRNS, KC_TRNS, KC_TRNS),
+	  
+	  // Macro layer
+	  [2] = LAYOUT_all(
+      KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, RGB_TOG,                    KC_TRNS, KC_TRNS, RESET, \
+      KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, RESET, KC_CTLBS,   KC_TRNS, KC_TRNS, KC_TRNS, \
+      KC_TRNS, BL_TOGG, BL_INC,  BL_DEC,  BL_BRTG, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,           KC_TRNS, KC_TRNS, KC_TRNS, \
+      KC_TRNS, KC_TRNS, KC_TRNS, GO2SLP, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, \
       KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,                    KC_TRNS, \
       KC_TRNS, KC_TRNS, KC_TRNS,          KC_TRNS,                   KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,                                      KC_TRNS, KC_TRNS, KC_TRNS),
 };
@@ -63,6 +81,22 @@ void matrix_scan_user(void) {
 }
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+	if (record->event.pressed) {
+        switch(keycode) {
+            case GO2SLP:
+                SEND_STRING(SS_LGUI("d"));
+				_delay_ms(250);
+				SEND_STRING(SS_LGUI("x"));
+				_delay_ms(250);
+				SEND_STRING("u");
+				_delay_ms(250);
+				SEND_STRING("s");
+                return false;
+            case MY_OTHER_MACRO:
+                SEND_STRING(SS_LCTRL("ac")); // selects all and copies
+                return false;
+        }
+    }
   return true;
 }
 
